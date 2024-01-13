@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guest-register
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: guest-register
+  template:
+    metadata:
+      labels:
+        app: guest-register
+    spec:
+      containers:
+        - name: guest-register
+          image: guest-register:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: '1'
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: guest-register-balancer
+spec:
+  selector:
+    app: guest-register
+  ports:
+    - protocol: TCP
+      port: 8000 # The port to expose to the outside
+      targetPort: 8080 # The port the application is running on in the pods
+  type: LoadBalancer
+  sessionAffinity: ClientIP
